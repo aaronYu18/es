@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <description>esModel</description>
+
+    <!-- 属性文件自下而上覆盖前一个文件-->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <property name="locations">
+            <list>
+                <value>classpath*:es.properties</value>
+            </list>
+        </property>
+        <property name="fileEncoding" value="utf-8" />
+    </bean>
+
+    <context:annotation-config/>
+    <!-- 自动扫描将带有注解的类 纳入spring容器管理 -->
+
+    <!-- 初始化ES-->
+    <bean id="esConfig" class="com.courier.es.utils.es.EsConfig"></bean>
+    <bean id="esClusterClient" class="com.courier.es.utils.es.EsClusterClient">
+        <property name="esConfig" ref="esConfig" />
+        <property name="ips" value="${es.ips}" />
+        <property name="clusterName" value="${es.cluster.name}"/>
+        <property name="sniff" value="${es.client.transport.sniff}"/>
+    </bean>
+
+    <!-- 初始化-->
+    <bean id="esUtils" class="com.courier.es.utils.es.EsUtils">
+        <property name="esClusterClient" ref="esClusterClient" />
+    </bean>
+</beans>
